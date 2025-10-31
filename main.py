@@ -35,9 +35,14 @@ def setup_parser():
     parser.add_argument('--delete', type=int, 
                        help='Удалить заметку по ID')
     
+    # Добавляю параметр для фильтрации по дате
+    parser.add_argument('--date', type=str, 
+                       help='Фильтр по дате (today, week, month, ГГГГ-ММ-ДД, ГГГГ-ММ, ГГГГ)')
+    
     # Добавляю параметры для создания заметки
     parser.add_argument('--title', type=str, 
                        help='Заголовок заметки')
+    
     parser.add_argument('--content', type=str, 
                        help='Текст заметки')
     
@@ -73,11 +78,11 @@ def main():
         
         elif args.list:
             # Команда показа всех заметок
-            commands.list_notes()
+            commands.list_notes(args.date)
         
         elif args.search:
             # Команда поиска заметок
-            commands.search_notes(args.search)
+            commands.search_notes(args.search, args.date)
         
         elif args.delete:
             # Команда удаления заметки
