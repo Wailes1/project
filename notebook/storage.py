@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, date
 from typing import List
 from .models import Note
 
@@ -107,3 +108,44 @@ class NoteStorage:
             note for note in notes 
             if query in note.title.lower() or query in note.content.lower()
         ]
+    
+    def filter_notes_by_date(self, notes: List[Note], date_filter: str) -> List[Note]:
+        # Фильтрую заметки по дате
+        # Поддерживаю форматы: ГГГГ-ММ-ДД, ГГГГ-ММ, ГГГГ
+        
+        today = datetime.now().date()
+        filtered_notes = []
+        
+        for note in notes:
+            try:
+                note_date = datetime.fromisoformat(note.created_at).date()
+                
+                if date_filter == 'today':
+                    if note_date == today:
+                        filtered_notes.append(note)
+                elif date_filter == 'week':
+                    week_ago = today - timedelta(days=7)
+                    if note_date >= week_ago:
+                        filtered_notes.append(note)
+                elif date_filter == 'month':
+                    month_ago = today - timedelta(days=30)
+                    if note_date >= month_ago:
+                        filtered_notes.append(note)
+                elif len(date_filter) == 10:  # ГГГГ-ММ-ДД
+                    filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
+                    if note_date == filter_date:
+                        filtered_notes.append(note)
+                elif len(date_filter) == 7:  # ГГГГ-ММ
+                    filter_year, filter_month = map(int, date_filter.split('-'))
+                    if note_date.year == filter_year and note_date.month == filter_month:
+                        filtered_notes.append(note)
+                elif len(date_filter) == 4:  # ГГГГ
+                    filter_year = int(date_filter)
+                    if note_date.year == filter_year:
+                        filtered_notes.append(note)
+                        
+            except (ValueError, AttributeError):
+                # Пропускаю заметки с некорректной датой
+                continue
+        
+        return filtered_notes
